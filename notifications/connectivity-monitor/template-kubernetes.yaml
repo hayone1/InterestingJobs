@@ -3,11 +3,14 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: connectivity-monitor
+  namespace: default
+  labels:
+    app: connectivity-test
 data:
-    HTTPS_PROXY: "XXX"
-    HTTP_PROXY: "XXX"
-    FTP_PROXY: "XXX"
-    NO_PROXY: "XXX"
+    HTTPS_PROXY: "ip:port"
+    HTTP_PROXY: "ip:port"
+    FTP_PROXY: "ip:port"
+    NO_PROXY: "ip:port"
     # use proxy be set to reach the notification endpoint
     PROXY_ON_NOTIFICATION: "true"
     # use proxy be set before running the test
@@ -65,6 +68,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: connectivity-text
+  namespace: default
   labels:
     app: connectivity-test
 spec:
