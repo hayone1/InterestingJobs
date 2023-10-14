@@ -100,16 +100,17 @@ function ProcessNofitication(){
 
     # Check if the multiline text contains the FAILURE_STATUS
     # if notify on failure is true and result has one or more failures
-    if [[ $NOTIFY_ON_FAILURE == "true" ]] && grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
+    formattedStatuses=$(echo "${statuses[@]}" | jq -n '. |= [inputs]')
+    if [[ $NOTIFY_ON_FAILURE == "true" ]] && echo "$statuses" | grep -q "[$FAILURE_STATUS]"; then
         #convert multiline json to json string array
-        formattedStatuses=$(echo "${statuses[@]}" | jq -n '. |= [inputs]')
         SendNotification "$formattedStatuses"
         echo "---Failure found in connectivity test---"
     fi
     #or
     # if notify on success is true and result has NO failure
-    if [[ $NOTIFY_ON_SUCCESS == "true" ]] && ! grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
-        SendNotification "$statuses"
+    if [[ $NOTIFY_ON_SUCCESS == "true" ]] && ! echo "$statuses" | grep -q "[$FAILURE_STATUS]"; then
+        SendNotification "$formattedStatuses"
+        echo "---All connectivity tests successful---"
     fi
     
 }
