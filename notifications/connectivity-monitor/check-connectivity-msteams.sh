@@ -53,6 +53,87 @@
 # ]
 # '
 # -----
+#convert sleep interval to number
+original_sleep_interval=$((SLEEP_INTERVAL))
+sleep_interval=$((SLEEP_INTERVAL))
+retry_exponent=$((RETRY_EXPONENT))
+max_retry_interval=$((MAX_RETRY_INTERVAL))
+
+function SendNotification(){
+    local formattedStatuses=$1
+    # emailFormat=$(echo "$formattedStatuses" | jq -c -r '.[][]' | sed ':a;N;$!ba;s/\n/%0D%0A/g')
+    # emailFormat="${emailFormat//$'\n'/ }"
+    # emailFormat=$(echo "$formattedStatuses" | jq -c -r '.[][]' | tr '\n' '')
+    mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
+    echo "formattedStatuses: $formattedStatuses"
+    # echo "EMAILformattedStatuses: $emailFormat"
+    
+    curl -X POST -H 'Content-Type: application/json' \
+        -d '{
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "contentUrl": null,
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.2",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": "'"[Connection][Alert]: ${mentions}"'",
+                            "wrap": "true"
+                        },
+                        {
+                            "type": "FactSet",
+                            "facts": '"$formattedStatuses"'
+                        }
+                    ],
+                    "msteams": {
+                        "entities": '"$TEAM"'
+                    }
+                }
+            }
+        ]
+    }' "$WEBHOOK_URL"
+}
+
+function SendNotification(){
+    local formattedStatuses=$1
+    mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
+    echo "formattedStatuses: $formattedStatuses"
+    curl -X POST -H 'Content-Type: application/json' \
+        -d '{
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "contentUrl": null,
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.2",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": "'"[Connection][Alert]: ${mentions}"'",
+                            "wrap": "true"
+                        },
+                        {
+                            "type": "FactSet",
+                            "facts": '"$formattedStatuses"'
+                        }
+                    ],
+                    "msteams": {
+                        "entities": '"$TEAM"'
+                    }
+                }
+            }
+        ]
+    }' "$WEBHOOK_URL"
+}
+
 function SendNotification(){
     local formattedStatuses=$1
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
@@ -98,20 +179,42 @@ function ProcessNofitication(){
         export no_proxy="$NO_PROXY"
     fi
 
-    # Check if the multiline text contains the FAILURE_STATUS
-    # if notify on failure is true and result has one or more failures
+    #convert multiline json to json string array
     formattedStatuses=$(echo "${statuses[@]}" | jq -n '. |= [inputs]')
-    if [[ $NOTIFY_ON_FAILURE == "true" ]] && echo "$statuses" | grep -q "[$FAILURE_STATUS]"; then
-        #convert multiline json to json string array
-        SendNotification "$formattedStatuses"
+    # Check if the statuses contains the any FAILURE_STATUS
+    ContainsFailedTest=$(echo "$formattedStatuses" | grep -Fq "[$FAILURE_STATUS]" && echo true)
+    echo "ContainsFailedTest: $ContainsFailedTest"
+
+    #if one of more connectivity tests failed
+    if [[ "$ContainsFailedTest" == true ]]; then
         echo "---Failure found in connectivity test---"
-    fi
-    #or
-    # if notify on success is true and result has NO failure
-    if [[ $NOTIFY_ON_SUCCESS == "true" ]] && ! echo "$statuses" | grep -q "[$FAILURE_STATUS]"; then
-        SendNotification "$formattedStatuses"
+
+        sleep_interval=$((sleep_interval * retry_exponent))
+        # clamp the value of sleep_interval to max_retry_interval
+        if [ "$sleep_interval" -gt "$max_retry_interval" ]; then
+                sleep_interval="$max_retry_interval"
+        fi
+        echo "---Set sleep-retry interval to: $sleep_interval"
+
+        # if notify on failure is true
+        if [[ $NOTIFY_ON_FAILURE == "true" ]]; then
+            echo "---Sending Failure Notification---"
+            SendNotification "$formattedStatuses"
+        fi
+    else # if all tests were successful
+        # ensure sleep_interval equals original_sleep_interval
         echo "---All connectivity tests successful---"
+        sleep_interval=$((original_sleep_interval))
+        echo "---Set sleep-retry interval to: $sleep_interval"
+        # if notify on success is true
+        if [[ $NOTIFY_ON_SUCCESS == "true" ]]; then
+        echo "---Sending Success Notification---"
+            SendNotification "$formattedStatuses"
+        fi
     fi
+    # just to print out the false condition
+    ContainsFailedTest=$(echo "$formattedStatuses" | grep -Fq "[$FAILURE_STATUS]" || echo false)
+    echo "ContainsFailedTest: $ContainsFailedTest"
     
 }
 
@@ -181,12 +284,21 @@ function CheckConnection() {
 
         # echo "${name}=${host}:${port}"
     ) &
-done
+    done
     wait
     # load file content
 
     ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
 }
-         
-CheckConnection
+
+while true; do
+    #check connection at least once
+    CheckConnection
+
+    if [ "$sleep_interval" -le 0 ]; then
+        break
+    fi
+    sleep "$sleep_interval"
+done
+# echo "$sleep_interval"
 

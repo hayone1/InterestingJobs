@@ -27,8 +27,13 @@ data:
     FAILURE_STATUS: "FAILURE"
     #internal filename to write test results
     RESULTS_FILE_NAME: "connectivity-test.txt"
-    # If not using a cron job for example, you can set the interval(seconds) between runs here
-    SLEEP_INTERVAL: "10"
+    # If not using a cron job for example, you can set the restart interval(seconds) between runs here
+    SLEEP_INTERVAL: "60"
+    # If not using a cron job, and there is a failed connectivity test, this is amount of times the rety interval will increase
+    # retry interval's value starts from SLEEP_INTERVAL
+    RETRY_EXPONENT: "2"
+    # If not using a cron job, and there is a failed connectivity test, this is the maximum retry interval
+    MAX_RETRY_INTERVAL: "3600"
     #teams webhook url to send notification to
     WEBHOOK_URL: "XXX"
     SCRIPT_URL: "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"

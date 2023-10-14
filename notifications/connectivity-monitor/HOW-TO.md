@@ -44,7 +44,9 @@ echo "$manifest" | yq '. |
 (select(.kind == "ConfigMap").data.PROXY_DURING_TEST) |= "false" |
 (select(.kind == "ConfigMap").data.NOTIFY_ON_SUCCESS) |= "false" |
 (select(.kind == "ConfigMap").data.NOTIFY_ON_FAILURE) |= "true" |
-(select(.kind == "ConfigMap").data.SLEEP_INTERVAL) |= "10" |
+(select(.kind == "ConfigMap").data.SLEEP_INTERVAL) |= "60" |
+(select(.kind == "ConfigMap").data.RETRY_EXPONENT) |= "2" |
+(select(.kind == "ConfigMap").data.MAX_RETRY_INTERVAL) |= "3600" |
 (select(.kind == "ConfigMap").data.HOSTS) |= strenv(notification_hosts) |
 (select(.kind == "ConfigMap").data.TEAM) |= strenv(notification_team) | 
 (select(.kind == "ConfigMap").data.WEBHOOK_URL) |= "https://url" |
