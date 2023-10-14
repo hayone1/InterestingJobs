@@ -48,6 +48,18 @@ echo "$manifest" | yq '. |
 (select(.kind == "ConfigMap").data.HOSTS) |= strenv(notification_hosts) |
 (select(.kind == "ConfigMap").data.TEAM) |= strenv(notification_team) | 
 (select(.kind == "ConfigMap").data.WEBHOOK_URL) |= "https://url" |
-(select(.kind == "ConfigMap").data.SCRIPT_URL) |= "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"' |
-tee connectivity-manifest.yaml | kubectl apply --kubeconfig "kubeconfig.yaml" -f -
+(select(.kind == "ConfigMap").data.SCRIPT_URL) |= "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"'
+
+kubectl apply --kubeconfig "kubeconfig.yaml" -f connectivity-manifest.yaml
 ```
+
+you can also add podAffinity to the arguments. eg.
+
+```
+...
+(select(.kind == "Deployment").spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key) = "node-key" |
+(select(.kind == "Deployment").spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator) = "In" |
+(select(.kind == "Deployment").spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]) = "node-value"
+...
+```
+> Remember the Pipe "|"
