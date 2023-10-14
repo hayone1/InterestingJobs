@@ -27,6 +27,7 @@ data:
     RESULTS_FILE_NAME: "connectivity-test.txt"
     #teams webhook url to send notification to
     WEBHOOK_URL: "XXX"
+    SCRIPT_URL: "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"
     #Destination hosts/ports to test connection to
     HOSTS: |
       [
@@ -67,7 +68,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: connectivity-text
+  name: connectivity-test
   namespace: default
   labels:
     app: connectivity-test
@@ -86,6 +87,9 @@ spec:
         # but any image with GNU bash, ncat, jq should work
       - name: doks
         image: docker.io/digitalocean/doks-debug:latest
+        envFrom:
+          - configMapRef:
+              name: connectivity-test
         resources:
           requests:
             memory: "64Mi"
@@ -95,3 +99,9 @@ spec:
             cpu: "500m"
         # ports:
         # - containerPort: 80
+        command:
+          - /bin/sh
+          - -c
+          - |
+
+          
