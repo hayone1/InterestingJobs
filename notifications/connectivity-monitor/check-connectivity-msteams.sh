@@ -288,6 +288,8 @@ function CheckConnection() {
     wait
     # load file content
 
+    echo "Test Results: $(cat "$RESULTS_FILE_NAME")"
+
     ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
 }
 
