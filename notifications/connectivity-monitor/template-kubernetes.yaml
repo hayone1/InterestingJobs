@@ -7,6 +7,7 @@ metadata:
   labels:
     app: connectivity-test
 data:
+    ANNOTATIONS: "env:TEST"
     HTTPS_PROXY: "ip:port"
     HTTP_PROXY: ""
     FTP_PROXY: ""

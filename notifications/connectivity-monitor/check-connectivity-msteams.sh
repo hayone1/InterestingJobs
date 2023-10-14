@@ -152,7 +152,7 @@ function SendNotification(){
                     "body": [
                         {
                             "type": "TextBlock",
-                            "text": "'"[Connection][Alert]: ${mentions}"'",
+                            "text": "'"[Connection][Alert][$ANNOTATIONS]: ${mentions}"'",
                             "wrap": "true"
                         },
                         {
