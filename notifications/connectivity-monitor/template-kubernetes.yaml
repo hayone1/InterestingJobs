@@ -123,6 +123,3 @@ spec:
             echo "Executing script"
             chmod +x check-connectivity-msteams.sh
             ./check-connectivity-msteams.sh
-
-            sleep "$SLEEP_INTERVAL"
-          
