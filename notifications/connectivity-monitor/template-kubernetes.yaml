@@ -82,5 +82,12 @@ spec:
         # but any image with GNU bash, ncat, jq should work
       - name: doks
         image: docker.io/digitalocean/doks-debug:latest
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
         # ports:
         # - containerPort: 80
