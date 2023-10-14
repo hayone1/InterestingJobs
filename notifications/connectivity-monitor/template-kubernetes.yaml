@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: connectivity-monitor
+  name: connectivity-test
   namespace: default
   labels:
     app: connectivity-test
