@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: connectivity-monitor
+data:
+    HTTPS_PROXY: "XXX"
+    HTTP_PROXY: "XXX"
+    FTP_PROXY: "XXX"
+    NO_PROXY: "XXX"
+    # use proxy be set to reach the notification endpoint
+    PROXY_ON_NOTIFICATION: "true"
+    # use proxy be set before running the test
+    PROXY_BEFORE_TEST: "false"
+    # should notification be send if all tests were successful?
+    NOTIFY_ON_SUCCESS: "false"
+    # should notification be send if at least 1 test failed?
+    NOTIFY_ON_FAILURE: "true"
+    #status summary for each successful single test
+    SUCCESS_STATUS: "SUCCESS"
+    #status summary for each failed single test
+    FAILURE_STATUS: "FAILURE"
+    #internal filename to write test results
+    RESULTS_FILE_NAME: "connectivity-test.txt"
+    #teams webhook url to send notification to
+    WEBHOOK_URL: "XXX"
+    #Destination hosts/ports to test connection to
+    HOSTS: |
+      [
+          {
+              "name" : "XXX",
+              "host" : "XXX",
+              "port" : "XXX"
+          },
+          {
+              "name" : "XXX",
+              "host" : "XXX",
+              "port" : "XXX"
+          }
+      ]
+    #Team members to mention in the alert. see: https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-format?tabs=adaptive-md%2Cdesktop%2Cconnector-html#example
+    TEAM: |
+      [
+        {
+          "type": "mention",
+          "text": "<at>name</at>",
+          "mentioned": {
+              "id": "name.name@domain.com",
+              "name": "name name"
+          }
+        },
+        {
+          "type": "mention",
+          "text": "<at>name</at>",
+          "mentioned": {
+              "id": "name.name@domain.com",
+              "name": "name name"
+          }
+        }
+      ]
+    # Note: Need to ensure that the eventual message size doesn't exceed 28 KB for Incoming Webhooks
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connectivity-text
+  labels:
+    app: connectivity-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connectivity-test
+  template:
+    metadata:
+      labels:
+        app: connectivity-test
+    spec:
+      containers:
+        # preferenced https://github.com/digitalocean/doks-debug
+        # but any image with GNU bash, ncat, jq should work
+      - name: doks
+        image: docker.io/digitalocean/doks-debug:latest
+        # ports:
+        # - containerPort: 80

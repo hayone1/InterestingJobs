@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# -----
+# variables template.
+# this will generally be set from kubernetes/docker environment variable
+# but you can uncomment them if using pure bash
+
 # HTTPS_PROXY=XXX
 # HTTP_PROXY=XXX
 # FTP_PROXY=XXX
@@ -45,6 +50,7 @@
 #   }
 # ]
 # '
+# -----
 function SendNotification(){
     local formattedStatuses=$1
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
@@ -82,8 +88,8 @@ function SendNotification(){
 
 function ProcessNofitication(){
     local statuses=$1
-    # check if any failure occured
-    if ! [[ $PROXY_ON_NOTIFICATION == true ]]; then
+    #if use proxy when sending notification
+    if [[ $PROXY_ON_NOTIFICATION == "true" ]]; then
         export https_proxy="$HTTPS_PROXY"
         export http_proxy="$HTTP_PROXY"
         export ftp_proxy="$FTP_PROXY"
@@ -92,7 +98,7 @@ function ProcessNofitication(){
 
     # Check if the multiline text contains the FAILURE_STATUS
     # if notify on failure is true and result has one or more failures
-    if [[ $NOTIFY_ON_FAILURE == true ]] && grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
+    if [[ $NOTIFY_ON_FAILURE == "true" ]] && grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
         #convert multiline json to json string array
         formattedStatuses=$(echo "${statuses[@]}" | jq -n '. |= [inputs]')
         SendNotification "$formattedStatuses"
@@ -100,7 +106,7 @@ function ProcessNofitication(){
     fi
     #or
     # if notify on success is true and result has NO failure
-    if [[ $NOTIFY_ON_SUCCESS == true ]] && ! grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
+    if [[ $NOTIFY_ON_SUCCESS == "true" ]] && ! grep -q "[$FAILURE_STATUS]" <<< "$statuses"; then
         SendNotification "$statuses"
     fi
     
@@ -118,9 +124,12 @@ function GetMessage(){
 }
 
 function CheckConnection() {
-
-    if ! [[ $PROXY_BEFORE_TEST == true ]]; then
-        unset http_proxy https_proxy ftp_proxy no_proxy
+    #if proxy should be activated before test
+    if [[ $PROXY_BEFORE_TEST == "true" ]]; then
+        export https_proxy="$HTTPS_PROXY"
+        export http_proxy="$HTTP_PROXY"
+        export ftp_proxy="$FTP_PROXY"
+        export no_proxy="$NO_PROXY"
     fi
 
     lineCreateSuffix="-connectivity-test"
