@@ -1,4 +1,53 @@
-curl -s -o - https://example.com/path/to/configmap.yaml | yq eval 'select(.metadata.name == "your-configmap-name") | .data.key-to-edit = "new-value"' - | kubectl apply -f -
+HOW-TO
 
+You can download, edit and apply the manifest[Link](https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/template-kubernetes.yaml).
 
-curl https://raw.githubusercontent.com/eirslett/frontend-maven-plugin/master/README.md > README.md
+Alternatively, using curl and yq, you can edit and run the below script.
+
+```
+export notification_hosts='[
+    {
+        "name" : "name",
+        "host" : "host",
+        "port" : "port"
+    },
+    {
+        "name" : "name",
+        "host" : "host",
+        "port" : "port"
+    }
+]'
+export notification_team='[
+  {
+    "type": "mention",
+    "text": "<at>name</at>",
+    "mentioned": {
+        "id": "name.name@domain.com",
+        "name": "name name"
+    }
+  },
+  {
+    "type": "mention",
+    "text": "<at>name</at>",
+    "mentioned": {
+        "id": "name.name@domain.com",
+        "name": "name name"
+    }
+  }
+]'
+manifest=$(curl https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/template-kubernetes.yaml)
+echo "$manifest" | yq '. |
+(select(.kind == "Deployment").metadata.namespace) |= "dafault" |
+(select(.kind == "ConfigMap").metadata.namespace) |= "dafault" |
+(select(.kind == "ConfigMap").data.HTTPS_PROXY) |= "ip:port" |
+(select(.kind == "ConfigMap").data.PROXY_BEFORE_TEST) |= "true" |
+(select(.kind == "ConfigMap").data.PROXY_DURING_TEST) |= "false" |
+(select(.kind == "ConfigMap").data.NOTIFY_ON_SUCCESS) |= "false" |
+(select(.kind == "ConfigMap").data.NOTIFY_ON_FAILURE) |= "true" |
+(select(.kind == "ConfigMap").data.SLEEP_INTERVAL) |= "10" |
+(select(.kind == "ConfigMap").data.HOSTS) |= strenv(notification_hosts) |
+(select(.kind == "ConfigMap").data.TEAM) |= strenv(notification_team) | 
+(select(.kind == "ConfigMap").data.WEBHOOK_URL) |= "https://url" |
+(select(.kind == "ConfigMap").data.SCRIPT_URL) |= "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"' |
+tee connectivity-manifest.yaml | kubectl apply --kubeconfig "kubeconfig.yaml" -f -
+```

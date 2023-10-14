@@ -10,13 +10,15 @@
 # FTP_PROXY=XXX
 # NO_PROXY=XXX
 # PROXY_ON_NOTIFICATION=true
-# PROXY_BEFORE_TEST=false
+# PROXY_ON_STARTUP=false
+# PROXY_DURING_TEST=false
 # NOTIFY_ON_SUCCESS=false
 # SUCCESS_STATUS="SUCCESS"
 # FAILURE_STATUS="FAILURE"
 # NOTIFY_ON_FAILURE=true
 # RESULTS_FILE_NAME="connectivity-test.txt"
 # WEBHOOK_URL="XXX"
+# SCRIPT_URL=""
 # HOSTS='
 # [
 #     {
@@ -125,7 +127,7 @@ function GetMessage(){
 
 function CheckConnection() {
     #if proxy should be activated before test
-    if [[ $PROXY_BEFORE_TEST == "true" ]]; then
+    if [[ $PROXY_DURING_TEST == "true" ]]; then
         export https_proxy="$HTTPS_PROXY"
         export http_proxy="$HTTP_PROXY"
         export ftp_proxy="$FTP_PROXY"

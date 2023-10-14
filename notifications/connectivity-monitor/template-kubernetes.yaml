@@ -8,13 +8,15 @@ metadata:
     app: connectivity-test
 data:
     HTTPS_PROXY: "ip:port"
-    HTTP_PROXY: "ip:port"
-    FTP_PROXY: "ip:port"
-    NO_PROXY: "ip:port"
+    HTTP_PROXY: ""
+    FTP_PROXY: ""
+    NO_PROXY: ""
     # use proxy be set to reach the notification endpoint
     PROXY_ON_NOTIFICATION: "true"
-    # use proxy be set before running the test
-    PROXY_BEFORE_TEST: "false"
+    # use proxy at startup
+    PROXY_ON_STARTUP: "false"
+    # set proxy before running the test
+    PROXY_DURING_TEST: "false"
     # should notification be send if all tests were successful?
     NOTIFY_ON_SUCCESS: "false"
     # should notification be send if at least 1 test failed?
@@ -25,6 +27,8 @@ data:
     FAILURE_STATUS: "FAILURE"
     #internal filename to write test results
     RESULTS_FILE_NAME: "connectivity-test.txt"
+    # If not using a cron job for example, you can set the interval(seconds) between runs here
+    SLEEP_INTERVAL: "10"
     #teams webhook url to send notification to
     WEBHOOK_URL: "XXX"
     SCRIPT_URL: "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"
@@ -100,8 +104,20 @@ spec:
         # ports:
         # - containerPort: 80
         command:
-          - /bin/sh
+          - /bin/bash
           - -c
           - |
+            # if true
+            [ "$PROXY_ON_STARTUP" == "true" ] && export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" ftp_proxy="$FTP_PROXY" no_proxy="$NO_PROXY";
+            # if false
+            [ "$PROXY_ON_STARTUP" == "true" ] || unset http_proxy https_proxy ftp_proxy no_proxy;
+            echo "PROXY_ON_STARTUP: $PROXY_ON_STARTUP"
 
+            echo "Downloading script from: $SCRIPT_URL"
+            curl "$SCRIPT_URL" > check-connectivity-msteams.sh
+            echo "Executing script"
+            chmod +x check-connectivity-msteams.sh
+            ./check-connectivity-msteams.sh
+
+            sleep "$SLEEP_INTERVAL"
           
