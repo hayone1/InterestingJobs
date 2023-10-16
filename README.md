@@ -5,7 +5,7 @@ Interesting Job(s) is/will be a collection of simple/medium bash scripts that ma
 Each major subfolder with have it's `HOW-TO.md` instruction 
 
 ## EXAMPLE - connectivity-monitor-msteams
-eg. [connectivity-monitor-msteams](monitoring\connectivity-monitor-msteams) is a job that can monitor connectivity to hosts (preferably external) and alert your team on teams 😄 when one or more of the monitored hosts does not respond favourably to the connectivity test. It will also emit logs that can be captured on tools like prometheus,Elastic etc...
+eg. [connectivity-monitor-msteams](monitoring/connectivity-monitor-msteams) is a job that can monitor connectivity to hosts (preferably external) and alert your team on teams 😄 when one or more of the monitored hosts does not respond favourably to the connectivity test. It will also emit logs that can be captured on tools like prometheus,Elastic etc...
 
 - ### kubernetes
     - Setup kubernetes. You can do so easily and quickly with [Play with kuberntes](https://labs.play-with-k8s.com/).
@@ -67,7 +67,7 @@ eg. [connectivity-monitor-msteams](monitoring\connectivity-monitor-msteams) is a
     kubectl logs deployment/connectivity-test -n dafault --kubeconfig "kubeconfig.yaml"
     ```
     If there is an alert, you'll see it in the teams channel and the job will back-off before trying the reach the hosts again.
-    
+
     ![Alt text](monitoring/images/TeamsAlert.png)
 
 ## Repo Summary
