@@ -67,6 +67,7 @@ eg. [connectivity-monitor-msteams](monitoring\connectivity-monitor-msteams) is a
     kubectl logs deployment/connectivity-test -n dafault --kubeconfig "kubeconfig.yaml"
     ```
     If there is an alert, you'll see it in the teams channel and the job will back-off before trying the reach the hosts again.
+    
     ![Alt text](monitoring/images/TeamsAlert.png)
 
 ## Repo Summary
