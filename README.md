@@ -1,8 +1,10 @@
 # Interesting Jobs
 
 Interesting Job(s) is/will be a collection of simple/medium bash scripts that may prove useful to deploy within a windows/linux environment or a docker/kubernetes cluster.
-
 Each major subfolder with have it's `HOW-TO.md` instruction 
+
+Also some interesting repos with intersting scripts:
+- [eldada](https://github.com/eldada/kubernetes-scripts)
 
 ## EXAMPLE - connectivity-monitor-msteams
 eg. [connectivity-monitor-msteams](monitoring/connectivity-monitor-msteams) is a job that can monitor connectivity to hosts (preferably external) and alert your team on teams 😄 when one or more of the monitored hosts does not respond favourably to the connectivity test. It will also emit logs that can be captured on tools like prometheus,Elastic etc...

@@ -65,7 +65,7 @@ function SendNotification(){
     # emailFormat="${emailFormat//$'\n'/ }"
     # emailFormat=$(echo "$formattedStatuses" | jq -c -r '.[][]' | tr '\n' '')
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
-    echo "formattedStatuses: $formattedStatuses"
+    # echo "formattedStatuses: $formattedStatuses"
     # echo "EMAILformattedStatuses: $emailFormat"
     
     curl -X POST -H 'Content-Type: application/json' \
@@ -102,7 +102,7 @@ function SendNotification(){
 function SendNotification(){
     local formattedStatuses=$1
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
-    echo "formattedStatuses: $formattedStatuses"
+    # echo "formattedStatuses: $formattedStatuses"
     curl -X POST -H 'Content-Type: application/json' \
         -d '{
         "type": "message",
@@ -137,7 +137,7 @@ function SendNotification(){
 function SendNotification(){
     local formattedStatuses=$1
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
-    echo "formattedStatuses: $formattedStatuses"
+    # echo "formattedStatuses: $formattedStatuses"
     curl -X POST -H 'Content-Type: application/json' \
         -d '{
         "type": "message",
@@ -183,7 +183,7 @@ function ProcessNofitication(){
     formattedStatuses=$(echo "${statuses[@]}" | jq -n '. |= [inputs]')
     # Check if the statuses contains the any FAILURE_STATUS
     ContainsFailedTest=$(echo "$formattedStatuses" | grep -Fq "[$FAILURE_STATUS]" && echo true)
-    echo "ContainsFailedTest: $ContainsFailedTest"
+    # echo "ContainsFailedTest: $ContainsFailedTest"
 
     #if one of more connectivity tests failed
     if [[ "$ContainsFailedTest" == true ]]; then
@@ -213,8 +213,8 @@ function ProcessNofitication(){
         fi
     fi
     # just to print out the false condition
-    ContainsFailedTest=$(echo "$formattedStatuses" | grep -Fq "[$FAILURE_STATUS]" || echo false)
-    echo "ContainsFailedTest: $ContainsFailedTest"
+    # ContainsFailedTest=$(echo "$formattedStatuses" | grep -Fq "[$FAILURE_STATUS]" || echo false)
+    # echo "ContainsFailedTest: $ContainsFailedTest"
     
 }
 
@@ -240,7 +240,7 @@ function CheckConnection() {
 
     lineCreateSuffix="-connectivity-test"
     hostsArrayLength=$(echo "$HOSTS" | jq 'length')
-    echo "hostsArrayLength: ${hostsArrayLength}"
+    # echo "hostsArrayLength: ${hostsArrayLength}"
 
     #create file that keeps result
     install -Dv /dev/null "$RESULTS_FILE_NAME"
@@ -263,17 +263,17 @@ function CheckConnection() {
         
         
         (
-        echo "$Title"
+        # echo "$Title"
         if nc -z -w 2 "$host" "$port"; then
-            echo "success"
+            # echo "success"
             statusMessage="$SUCCESS_STATUS"
         else
-            echo "failure"
+            # echo "failure"
             statusMessage="$FAILURE_STATUS"
         fi
         #add result in file line
         currentLineContent="${i}${lineCreateSuffix}"
-        echo "currentLineContent: ${currentLineContent}"
+        # echo "currentLineContent: ${currentLineContent}"
 
         # replace placeholder using sed -i 's/old-text/new-text/g' file.txt
         # -i.bak and \< ensure to replace exactly the text considering the length as well
@@ -288,7 +288,8 @@ function CheckConnection() {
     wait
     # load file content
 
-    echo "Test Results: $(cat "$RESULTS_FILE_NAME")"
+    echo "Test Results"
+    cat "$RESULTS_FILE_NAME"
 
     ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
 }
