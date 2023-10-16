@@ -1,8 +1,8 @@
 HOW-TO
 
-You can download, edit and apply the manifest[Link](https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/template-kubernetes.yaml).
+You can download, edit and apply the manifest [Link](https://raw.githubusercontent.com/hayone1/InterestingJobs/main/monitoring/connectivity-monitor-msteams/template-kubernetes.yaml).
 
-Alternatively, using curl and yq, you can edit and run the below script.
+Alternatively, using curl and yq, you can edit and run the below commands on linux/unix based systems.
 
 ```
 export notification_hosts='[
@@ -35,6 +35,8 @@ export notification_team='[
     }
   }
 ]'
+```
+```
 manifest=$(curl https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/template-kubernetes.yaml)
 echo "$manifest" | yq '. |
 (select(.kind == "Deployment").metadata.namespace) |= "dafault" |
@@ -50,8 +52,9 @@ echo "$manifest" | yq '. |
 (select(.kind == "ConfigMap").data.HOSTS) |= strenv(notification_hosts) |
 (select(.kind == "ConfigMap").data.TEAM) |= strenv(notification_team) | 
 (select(.kind == "ConfigMap").data.WEBHOOK_URL) |= "https://url" |
-(select(.kind == "ConfigMap").data.SCRIPT_URL) |= "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"'
-
+(select(.kind == "ConfigMap").data.SCRIPT_URL) |= "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"' | tee connectivity-manifest.yaml
+```
+```
 kubectl apply --kubeconfig "kubeconfig.yaml" -f connectivity-manifest.yaml
 ```
 
@@ -64,4 +67,4 @@ you can also add podAffinity to the arguments. eg.
 (select(.kind == "Deployment").spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]) = "node-value"
 ...
 ```
-> Remember the Pipe "|"
+> No need to add a pipe to the podAffinity values as they arent originally in the template

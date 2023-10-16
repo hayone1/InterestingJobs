@@ -12,8 +12,8 @@ data:
     HTTP_PROXY: ""
     FTP_PROXY: ""
     NO_PROXY: ""
-    # use proxy be set to reach the notification endpoint
-    PROXY_ON_NOTIFICATION: "true"
+    # should proxy be set to reach the notification endpoint
+    PROXY_ON_NOTIFICATION: "false"
     # use proxy at startup
     PROXY_ON_STARTUP: "false"
     # set proxy before running the test
@@ -37,7 +37,7 @@ data:
     MAX_RETRY_INTERVAL: "3600"
     #teams webhook url to send notification to
     WEBHOOK_URL: "XXX"
-    SCRIPT_URL: "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/notifications/connectivity-monitor/check-connectivity-msteams.sh"
+    SCRIPT_URL: "https://raw.githubusercontent.com/hayone1/InterestingJobs/main/monitoring/connectivity-monitor-msteams/check-connectivity-msteams.sh"
     #Destination hosts/ports to test connection to
     HOSTS: |
       [
