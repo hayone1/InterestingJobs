@@ -61,46 +61,6 @@ max_retry_interval=$((MAX_RETRY_INTERVAL))
 
 function SendNotification(){
     local formattedStatuses=$1
-    # emailFormat=$(echo "$formattedStatuses" | jq -c -r '.[][]' | sed ':a;N;$!ba;s/\n/%0D%0A/g')
-    # emailFormat="${emailFormat//$'\n'/ }"
-    # emailFormat=$(echo "$formattedStatuses" | jq -c -r '.[][]' | tr '\n' '')
-    mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
-    # echo "formattedStatuses: $formattedStatuses"
-    # echo "EMAILformattedStatuses: $emailFormat"
-    
-    curl -X POST -H 'Content-Type: application/json' \
-        -d '{
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "contentUrl": null,
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.2",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "text": "'"[Connection][Alert]: ${mentions}"'",
-                            "wrap": "true"
-                        },
-                        {
-                            "type": "FactSet",
-                            "facts": '"$formattedStatuses"'
-                        }
-                    ],
-                    "msteams": {
-                        "entities": '"$TEAM"'
-                    }
-                }
-            }
-        ]
-    }' "$WEBHOOK_URL"
-}
-
-function SendNotification(){
-    local formattedStatuses=$1
     mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
     # echo "formattedStatuses: $formattedStatuses"
     curl -X POST -H 'Content-Type: application/json' \
@@ -118,41 +78,6 @@ function SendNotification(){
                         {
                             "type": "TextBlock",
                             "text": "'"[Connection][Alert]: ${mentions}"'",
-                            "wrap": "true"
-                        },
-                        {
-                            "type": "FactSet",
-                            "facts": '"$formattedStatuses"'
-                        }
-                    ],
-                    "msteams": {
-                        "entities": '"$TEAM"'
-                    }
-                }
-            }
-        ]
-    }' "$WEBHOOK_URL"
-}
-
-function SendNotification(){
-    local formattedStatuses=$1
-    mentions=$(echo "$TEAM" | jq -r '.[].text' | paste -sd ',')
-    # echo "formattedStatuses: $formattedStatuses"
-    curl -X POST -H 'Content-Type: application/json' \
-        -d '{
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "contentUrl": null,
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.2",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "text": "'"[Connection][Alert][$ANNOTATIONS]: ${mentions}"'",
                             "wrap": "true"
                         },
                         {
@@ -199,7 +124,7 @@ function ProcessNofitication(){
         # if notify on failure is true
         if [[ $NOTIFY_ON_FAILURE == "true" ]]; then
             echo "---Sending Failure Notification---"
-            SendNotification "$formattedStatuses"
+            # SendNotification "$formattedStatuses"
         fi
     else # if all tests were successful
         # ensure sleep_interval equals original_sleep_interval
@@ -209,7 +134,7 @@ function ProcessNofitication(){
         # if notify on success is true
         if [[ $NOTIFY_ON_SUCCESS == "true" ]]; then
         echo "---Sending Success Notification---"
-            SendNotification "$formattedStatuses"
+            # SendNotification "$formattedStatuses"
         fi
     fi
     # just to print out the false condition
@@ -291,7 +216,7 @@ function CheckConnection() {
     echo "Test Results"
     cat "$RESULTS_FILE_NAME"
 
-    # ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
+    ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
 }
 
 while true; do
