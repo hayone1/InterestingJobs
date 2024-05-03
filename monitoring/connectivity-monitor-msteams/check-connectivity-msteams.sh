@@ -291,7 +291,7 @@ function CheckConnection() {
     echo "Test Results"
     cat "$RESULTS_FILE_NAME"
 
-    ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
+    # ProcessNofitication "$(cat "$RESULTS_FILE_NAME")"
 }
 
 while true; do
